@@ -1,32 +1,51 @@
 ﻿using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Inventory : MonoBehaviour
+[Serializable]
+public class Inventory : IEnumerable
 {
-    public GameObject InventoryGUI;
+    public Dictionary<Item, int> items;
 
-    private bool isVisible;
-
-    // Start is called before the first frame update
-    void Start()
+    public Inventory()
     {
-        isVisible = false;
-        InventoryGUI.SetActive(false);
+        items = new Dictionary<Item, int>();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void AddItem(Item item)
     {
-        if (ShouldDisplayInventory()) {
-            isVisible = !isVisible;
-            InventoryGUI.SetActive(isVisible);
+        if (items.ContainsKey(item))
+        {
+            items[item]++;
+        }
+        else
+        {
+            items[item] = 1;
         }
     }
 
-    private bool ShouldDisplayInventory()
+    public IEnumerator GetEnumerator()
     {
-        return Input.GetKeyUp(KeyCode.E) || 
-                (isVisible && Input.GetKeyUp(KeyCode.Escape));
+        return items.GetEnumerator();
+    }
+
+    public Item RemoveItem(Item item)
+    {
+        if (!items.ContainsKey(item))
+        {
+            throw new ArgumentException("Item was not found in the inventory");
+        }
+        items[item]--;
+        if (items[item] == 0)
+        {
+            items.Remove(item);
+        }
+        return item;
+    }
+
+    public override string ToString()
+    {
+        return items.ToString();
     }
 }
